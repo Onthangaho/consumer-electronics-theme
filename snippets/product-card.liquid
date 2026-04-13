@@ -33,7 +33,6 @@
 
   assign product_card_id = 'product-card-link-' | append: block.id | append: '-' | append: product.id
   assign product_card_gap_value = product_card_gap | default: block_settings.product_card_gap
-  assign product_view_context = product_view_context | default: 'collection'
 
   # Logic to determine which variant URL to use (matching swatch selection logic)
   assign variant_to_link = product.selected_or_first_available_variant
@@ -57,7 +56,7 @@
 
 <product-card
   class="product-card size-style"
-  style="{% render 'size-style', settings: block_settings %}"
+  style="--border-radius: {{ settings.card_border_radius }}px; --sale-badge-background: {{ settings.sale_badge_color }};{% render 'size-style', settings: block_settings %}"
   data-product-id="{{ product.id }}"
   id="product-card-{{ block.id }}"
   {% if settings.transition_to_main_product %}
@@ -94,6 +93,7 @@
       {% if block_settings.inherit_color_scheme == false %} color-{{ block_settings.color_scheme }}{% endif %}
     "
     style="
+      border-radius: var(--border-radius);
       {% render 'border-override', settings: block_settings %}
       {% render 'layout-panel-style', settings: block_settings %}
       {% render 'spacing-style', settings: block_settings %}
@@ -107,11 +107,18 @@
       {% if block_settings.padding-block-end > 0 %}--zoom-out-padding-block-end: min(var(--padding-xs), {{ block_settings.padding-block-end | times: 0.7}}px);{% endif %}
     "
   >
+    {% if settings.show_vendor_on_cards and product.vendor != blank %}
+      <p class="product-card__vendor">{{ product.vendor }}</p>
+    {% endif %}
     {{ children }}
   </div>
 </product-card>
 
 {% stylesheet %}
+  .product-card__vendor {
+    margin: 0;
+  }
+
   .product-card__placeholder-image svg {
     height: 100%;
   }
