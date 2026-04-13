@@ -1,0 +1,5 @@
+config/settings_data.json
+node_modules/
+.shopify/
+.DS_Store
+Thumbs.db

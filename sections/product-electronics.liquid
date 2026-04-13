@@ -1,0 +1,379 @@
+{% comment %} Electronics product template — badges, specs, variant switching {% endcomment %}
+
+{% comment %} Calculate min/max price range across all variants {% endcomment %}
+{% assign min_price = product.variants[0].price %}
+{% assign max_price = product.variants[0].price %}
+{% for variant in product.variants %}
+  {% if variant.price < min_price %}
+    {% assign min_price = variant.price %}
+  {% endif %}
+  {% if variant.price > max_price %}
+    {% assign max_price = variant.price %}
+  {% endif %}
+{% endfor %}
+
+<script>
+var productVariants = [
+  {% for variant in product.variants %}
+  {
+    "id": {{ variant.id }},
+    "title": {{ variant.title | json }},
+    "price": {{ variant.price }},
+    "available": {{ variant.available }},
+    "option1": {{ variant.option1 | json }},
+    "option2": {{ variant.option2 | json }},
+    "option3": {{ variant.option3 | json }}
+  }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+];
+
+function formatMoney(cents) {
+  var zeroFormatted = {{ 0 | money | json }};
+  var symbol = zeroFormatted.replace(/[\d.,\s]/g, '');
+  var amount  = (cents / 100).toFixed(2);
+  var parts   = amount.split('.');
+  parts[0]    = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return symbol + parts.join('.');
+}
+
+function getSelectedVariant() {
+  var selects = document.querySelectorAll('.elec-option-select');
+  var chosen  = Array.from(selects).map(function(s){ return s.value; });
+  return productVariants.find(function(v){
+    return (
+      (chosen[0] === undefined || v.option1 === chosen[0]) &&
+      (chosen[1] === undefined || v.option2 === chosen[1]) &&
+      (chosen[2] === undefined || v.option3 === chosen[2])
+    );
+  });
+}
+
+function updateVariantUI() {
+  var variant = getSelectedVariant();
+  if (!variant) return;
+
+  var idInput  = document.getElementById('elec-variant-id');
+  var priceEl  = document.getElementById('elec-price-display');
+  var btnEl    = document.getElementById('elec-cart-btn');
+  var configEl = document.getElementById('elec-selected-config');
+
+  if (idInput)  idInput.value = variant.id;
+  if (priceEl)  priceEl.textContent = formatMoney(variant.price);
+  if (configEl) configEl.textContent = variant.title;
+
+  if (btnEl) {
+    if (variant.available) {
+      btnEl.disabled = false;
+      btnEl.textContent = 'Add to Cart \u2014 ' + formatMoney(variant.price);
+    } else {
+      btnEl.disabled = true;
+      btnEl.textContent = 'Sold Out';
+    }
+  }
+}
+</script>
+
+<div class="electronics-product-page" style="max-width:1100px;margin:0 auto;padding:2rem 1rem;font-family:system-ui,sans-serif;">
+
+  {% comment %} Badges — rendered conditionally based on price, tags and availability {% endcomment %}
+  <div class="product-badges" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1rem;">
+
+    {% if product.compare_at_price > product.price %}
+      {% assign saving       = product.compare_at_price | minus: product.price %}
+      {% assign discount_pct = saving | times: 100 | divided_by: product.compare_at_price | round %}
+      <span style="background:#dc2626;color:#fff;padding:4px 12px;border-radius:4px;font-size:13px;font-weight:600;">
+        SALE — Save {{ discount_pct }}%
+      </span>
+    {% endif %}
+
+    {% if product.tags contains 'new-arrival' %}
+      <span style="background:#2563eb;color:#fff;padding:4px 12px;border-radius:4px;font-size:13px;font-weight:600;">
+        New Arrival
+      </span>
+    {% endif %}
+
+    {% if product.tags contains 'best-seller' %}
+      <span style="background:#16a34a;color:#fff;padding:4px 12px;border-radius:4px;font-size:13px;font-weight:600;">
+        Best Seller
+      </span>
+    {% endif %}
+
+    {% unless product.available %}
+      <span style="background:#6b7280;color:#fff;padding:4px 12px;border-radius:4px;font-size:13px;font-weight:600;">
+        Sold Out
+      </span>
+    {% endunless %}
+
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+
+    {% comment %} Image gallery — featured image large, remaining images as thumbnails {% endcomment %}
+    <div class="product-gallery">
+      {% if product.featured_image %}
+        <img
+          src="{{ product.featured_image | image_url: width: 600 }}"
+          alt="{{ product.featured_image.alt | default: product.title }}"
+          width="600"
+          height="600"
+          style="width:100%;border-radius:8px;border:1px solid #e5e7eb;margin-bottom:12px;"
+          loading="eager"
+        >
+      {% endif %}
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        {% for image in product.images %}
+          <img
+            src="{{ image | image_url: width: 200 }}"
+            alt="{{ image.alt | default: product.title }}"
+            width="200"
+            height="200"
+            loading="lazy"
+            style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;"
+          >
+        {% endfor %}
+      </div>
+    </div>
+
+    {% comment %} Product info — vendor, title, price range, description preview, form {% endcomment %}
+    <div class="product-info">
+
+      <p style="font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin:0 0 4px;">
+        {{ product.vendor | upcase }}
+      </p>
+
+      <h1 style="font-size:1.75rem;font-weight:700;margin:0 0 6px;color:#f9fafb;">
+        {{ product.title }}
+      </h1>
+
+      <p style="font-size:13px;color:#6b7280;margin:0 0 12px;">
+        {{ product.type }}
+      </p>
+
+      {% comment %} Show a price range when variants differ, otherwise single price {% endcomment %}
+      <div style="margin-bottom:12px;">
+        {% if min_price == max_price %}
+          <span id="elec-price-display" style="font-size:1.5rem;font-weight:700;color:#f9fafb;">
+            {{ product.price | money }}
+          </span>
+          {% if product.compare_at_price > product.price %}
+            <span style="font-size:1rem;color:#9ca3af;text-decoration:line-through;margin-left:8px;">
+              {{ product.compare_at_price | money }}
+            </span>
+          {% endif %}
+        {% else %}
+          <span style="font-size:1rem;color:#6b7280;margin-right:4px;">From</span>
+          <span style="font-size:1.5rem;font-weight:700;color:#f9fafb;">{{ min_price | money }}</span>
+          <span style="font-size:1.25rem;color:#6b7280;margin:0 6px;">—</span>
+          <span style="font-size:1.5rem;font-weight:700;color:#f9fafb;">{{ max_price | money }}</span>
+          <div style="margin-top:6px;">
+            <span style="font-size:13px;color:#9ca3af;">Selected: </span>
+            <span id="elec-price-display" style="font-size:1.1rem;font-weight:700;color:#f9fafb;">
+              {{ product.selected_or_first_available_variant.price | money }}
+            </span>
+          </div>
+        {% endif %}
+      </div>
+
+      <p style="font-size:12px;color:#9ca3af;margin:0 0 16px;">
+        Added: {{ product.created_at | date: '%B %d, %Y' }}
+      </p>
+
+      {% comment %} Truncated description preview — full version rendered below {% endcomment %}
+      <div style="background:#f9fafb;border-radius:8px;padding:12px 16px;margin-bottom:16px;border:1px solid #e5e7eb;">
+        <p style="font-size:13px;color:#374151;line-height:1.6;margin:0 0 6px;font-style:italic;">
+          {{ product.description | strip_html | truncate: 120 }}
+        </p>
+        <a href="#full-description" style="font-size:12px;color:#2563eb;text-decoration:none;">
+          Read full description ↓
+        </a>
+      </div>
+
+      {% comment %} Add to cart form — variant dropdowns update price via updateVariantUI() {% endcomment %}
+      {% form 'product', product %}
+
+        {% for option in product.options_with_values %}
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:13px;font-weight:600;color:#9ca3af;margin-bottom:4px;">
+              {{ option.name }}
+            </label>
+            <select
+              class="elec-option-select"
+              name="options[{{ option.name | escape }}]"
+              onchange="updateVariantUI()"
+              style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;background:#f9fafb;color:#111827;"
+            >
+              {% for value in option.values %}
+                <option value="{{ value | escape }}">{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endfor %}
+
+        <input
+          type="hidden"
+          name="id"
+          id="elec-variant-id"
+          value="{{ product.selected_or_first_available_variant.id }}"
+        >
+
+        <button
+          type="submit"
+          id="elec-cart-btn"
+          style="width:100%;padding:14px;background:{% if product.available %}#111827{% else %}#9ca3af{% endif %};color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:{% if product.available %}pointer{% else %}not-allowed{% endif %};margin-top:8px;transition:background-color 0.3s ease;"
+          {% unless product.available %}disabled{% endunless %}
+          onmouseover="this.style.background='{% if product.available %}#1f2937{% else %}#9ca3af{% endif %}'"
+          onmouseout="this.style.background='{% if product.available %}#111827{% else %}#9ca3af{% endif %}'"
+        >
+          {% if product.available %}
+            Add to Cart — {{ product.selected_or_first_available_variant.price | money }}
+          {% else %}
+            Sold Out
+          {% endif %}
+        </button>
+
+      {% endform %}
+
+    </div>
+
+  </div>
+
+  {% comment %} Full product description {% endcomment %}
+  <div id="full-description" style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">
+    <h2 style="font-size:1.25rem;font-weight:600;margin:0 0 1rem;color:#fff;">Product Description</h2>
+    <div style="font-size:14px;color:#374151;line-height:1.8;">
+      {{ product.description }}
+    </div>
+  </div>
+
+  {% comment %}
+    Specifications table — reads spec: tags formatted as spec:Name:Value.
+    Controlled by section setting so merchants can toggle it in the Theme Editor.
+  {% endcomment %}
+  {% if section.settings.show_specs %}
+    <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">
+      <h2 style="font-size:1.25rem;font-weight:600;margin:0 0 1rem;color:#fff;">
+        {{ section.settings.specs_heading }}
+      </h2>
+
+      {% assign has_specs = false %}
+      {% for tag in product.tags %}
+        {% if tag contains 'spec:' %}{% assign has_specs = true %}{% endif %}
+      {% endfor %}
+
+      {% if has_specs %}
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          <thead>
+            <tr style="background:#f3f4f6;">
+              <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;width:35%;border-bottom:2px solid #e5e7eb;">Specification</th>
+              <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            {% comment %} Selected variant row — updated by JS on dropdown change {% endcomment %}
+            <tr style="background:#fefce8;border-bottom:1px solid #e5e7eb;">
+              <td style="padding:10px 16px;color:#6b7280;font-weight:500;">Selected Configuration</td>
+              <td style="padding:10px 16px;color:#111;font-weight:600;" id="elec-selected-config">
+                {{ product.selected_or_first_available_variant.title }}
+              </td>
+            </tr>
+
+            {% for tag in product.tags %}
+              {% if tag contains 'spec:' %}
+                {% assign parts = tag | split: ':' %}
+                {% if parts.size >= 3 %}
+                  {% assign spec_name = parts[1] %}
+                  {% assign spec_val  = parts[2] %}
+                  <tr style="border-bottom:1px solid #f3f4f6;">
+                    <td style="padding:10px 16px;color:#6b7280;font-weight:500;">{{ spec_name }}</td>
+                    <td style="padding:10px 16px;color:#fff;font-weight:500;">
+                      {{ spec_val }}
+                      {% if spec_name == 'Storage' and spec_val contains '1TB' or spec_name == 'Storage' and spec_val contains '2TB' %}
+                        <span style="background:#7c3aed;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;margin-left:8px;">High Capacity</span>
+                      {% endif %}
+                      {% if spec_name == 'RAM' and spec_val contains '32GB' or spec_name == 'RAM' and spec_val contains '64GB' %}
+                        <span style="background:#0891b2;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;margin-left:8px;">Pro Performance</span>
+                      {% endif %}
+                      {% if spec_name == 'Battery' and spec_val contains '18' or spec_name == 'Battery' and spec_val contains '20' %}
+                        <span style="background:#16a34a;color:#fff;font-size:11px;padding:2px 8px;border-radius:4px;margin-left:8px;">All-Day Battery</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color:#9ca3af;font-size:14px;font-style:italic;">No specifications added for this product yet.</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% comment %} All variants table — SKU, price and stock status per variant {% endcomment %}
+  <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">
+    <h2 style="font-size:1.25rem;font-weight:600;margin:0 0 4px;color:#fff;">All Configurations</h2>
+    <p style="font-size:13px;color:#6b7280;margin:0 0 1rem;">{{ product.variants | size }} configurations available</p>
+
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f3f4f6;">
+            <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;">Variant</th>
+            <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;">SKU</th>
+            <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;">Price</th>
+            <th style="text-align:left;padding:10px 16px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;">Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for variant in product.variants %}
+            <tr style="border-bottom:1px solid #f3f4f6;">
+              <td style="padding:10px 16px;color:#fff;font-weight:500;">{{ variant.title }}</td>
+              <td style="padding:10px 16px;color:#6b7280;font-family:monospace;">{{ variant.sku | default: 'N/A' }}</td>
+              <td style="padding:10px 16px;color:#fff;font-weight:600;">{{ variant.price | money }}</td>
+              <td style="padding:10px 16px;">
+                {% if variant.available %}
+                  <span style="background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;">In Stock</span>
+                {% else %}
+                  <span style="background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;">Sold Out</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+{% schema %}
+{
+  "name": "Electronics Display",
+  "tag": "section",
+  "class": "section-electronics-product",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_specs",
+      "label": "Show specifications table",
+      "default": true,
+      "info": "Toggle the technical specifications table on or off without editing code."
+    },
+    {
+      "type": "text",
+      "id": "specs_heading",
+      "label": "Specs section heading",
+      "default": "Technical Specifications",
+      "info": "Heading displayed above the specifications table."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Electronics Display"
+    }
+  ]
+}
+{% endschema %}
