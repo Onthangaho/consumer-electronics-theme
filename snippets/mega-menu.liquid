@@ -1,0 +1,182 @@
+{% comment %}theme-check-disable UnusedSnippet{% endcomment %}
+{% assign main_menu = linklists['main-menu'] %}
+
+{% if main_menu and main_menu.links.size > 0 %}
+	<nav class="assignment-mega-menu" aria-label="Main navigation">
+		<ul class="assignment-mega-menu__list" role="list">
+			{% for link in main_menu.links %}
+				{% assign has_children = false %}
+				{% if link.links.size > 0 %}
+					{% assign has_children = true %}
+				{% endif %}
+				<li class="assignment-mega-menu__item{% if has_children %} assignment-mega-menu__item--has-children{% endif %}">
+					<a
+						href="{{ link.url }}"
+						class="assignment-mega-menu__top-link{% if link.active or link.child_active %} is-active{% endif %}"
+					>
+						{{ link.title }}
+					</a>
+
+					{% if has_children %}
+						<div class="assignment-mega-menu__dropdown{% if link.links.size > 4 %} assignment-mega-menu__dropdown--wide{% endif %}{% if link.handle == 'computers' %} assignment-mega-menu__dropdown--featured{% endif %}">
+							<ul class="assignment-mega-menu__children{% if link.links.size > 4 %} assignment-mega-menu__children--multi-column{% endif %}" role="list">
+								{% for child_link in link.links %}
+									<li class="assignment-mega-menu__child-item">
+										<a
+											href="{{ child_link.url }}"
+											class="assignment-mega-menu__child-link{% if child_link.active or child_link.child_active %} is-active{% endif %}"
+										>
+											{{ child_link.title }}
+										</a>
+									</li>
+								{% endfor %}
+							</ul>
+
+							{% if link.handle == 'computers' %}
+								{% assign featured_collection = collections[link.handle] %}
+								{% assign featured_product = featured_collection.products.first %}
+
+								{% if featured_product %}
+									<aside class="assignment-mega-menu__featured">
+										<p class="assignment-mega-menu__featured-label">Featured Product</p>
+										<a href="{{ featured_product.url }}" class="assignment-mega-menu__featured-image-link">
+											{% if featured_product.featured_image %}
+												{{ featured_product.featured_image | image_url: width: 320 | image_tag: loading: 'lazy', alt: featured_product.title, class: 'assignment-mega-menu__featured-image' }}
+											{% endif %}
+										</a>
+										<h4 class="assignment-mega-menu__featured-title">
+											<a href="{{ featured_product.url }}">{{ featured_product.title }}</a>
+										</h4>
+										<p class="assignment-mega-menu__featured-price">{{ featured_product.price | money }}</p>
+										<a href="{{ featured_product.url }}" class="assignment-mega-menu__featured-cta">Shop Now</a>
+									</aside>
+								{% endif %}
+							{% endif %}
+						</div>
+					{% endif %}
+				</li>
+			{% endfor %}
+		</ul>
+	</nav>
+{% endif %}
+
+{% stylesheet %}
+	.assignment-mega-menu {
+		display: block;
+		width: 100%;
+	}
+
+	.assignment-mega-menu__list {
+		display: flex;
+		align-items: center;
+		gap: 20px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.assignment-mega-menu__item {
+		position: relative;
+		padding-block: 8px;
+	}
+
+	.assignment-mega-menu__top-link,
+	.assignment-mega-menu__child-link {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.assignment-mega-menu__top-link.is-active,
+	.assignment-mega-menu__child-link.is-active {
+		text-decoration: underline;
+		font-weight: 700;
+	}
+
+	.assignment-mega-menu__dropdown {
+		position: absolute;
+		top: 100%;
+		left: 0;
+		display: none;
+		min-width: 260px;
+		padding: 16px;
+		background: rgb(var(--color-background-rgb));
+		color: rgb(var(--color-foreground-rgb));
+		border: 1px solid rgb(var(--color-border-rgb));
+		box-shadow: 0 10px 24px rgb(0 0 0 / 15%);
+		z-index: var(--layer-popover);
+	}
+
+	.assignment-mega-menu__item--has-children:hover > .assignment-mega-menu__dropdown,
+	.assignment-mega-menu__item--has-children:focus-within > .assignment-mega-menu__dropdown {
+		display: grid;
+		gap: 20px;
+	}
+
+	.assignment-mega-menu__children {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.assignment-mega-menu__children--multi-column {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 20px;
+		row-gap: 10px;
+	}
+
+	.assignment-mega-menu__dropdown--wide {
+		min-width: 460px;
+	}
+
+	.assignment-mega-menu__dropdown--featured {
+		min-width: 680px;
+		grid-template-columns: minmax(340px, 1fr) 260px;
+		align-items: start;
+	}
+
+	.assignment-mega-menu__featured {
+		border-left: 1px solid rgb(var(--color-border-rgb));
+		padding-left: 16px;
+	}
+
+	.assignment-mega-menu__featured-label {
+		margin: 0 0 8px;
+		font-size: 12px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		opacity: 0.7;
+	}
+
+	.assignment-mega-menu__featured-image {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 6px;
+		margin-bottom: 8px;
+	}
+
+	.assignment-mega-menu__featured-title {
+		margin: 0 0 4px;
+		font-size: 14px;
+	}
+
+	.assignment-mega-menu__featured-price {
+		margin: 0 0 10px;
+		font-weight: 600;
+	}
+
+	.assignment-mega-menu__featured-cta {
+		display: inline-block;
+		text-decoration: underline;
+	}
+
+	@media (max-width: 768px) {
+		.assignment-mega-menu {
+			display: none;
+		}
+	}
+{% endstylesheet %}

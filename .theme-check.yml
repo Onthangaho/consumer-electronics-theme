@@ -1,0 +1,6 @@
+extends: theme-check:recommended
+
+OrphanedSnippet:
+  enabled: true
+  ignore:
+    - snippets/mega-menu.liquid

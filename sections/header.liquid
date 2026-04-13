@@ -57,11 +57,11 @@
   endcapture
 
   capture drawer_menu
-    content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'mobile'
+    echo menu
   endcapture
 
   capture navigation_bar
-    content_for 'block', type: '_header-menu', id: 'header-menu', variant: 'navigation_bar', transparent: transparent
+    echo menu
   endcapture
 
   capture actions
@@ -1027,13 +1027,6 @@
   .localization-wrapper:not([hidden]) {
     translate: 0 0;
     opacity: 1;
-  }
-
-  @starting-style {
-    .localization-wrapper:not([hidden]) {
-      translate: 0 20px;
-      opacity: 0;
-    }
   }
 
   dropdown-localization-component {

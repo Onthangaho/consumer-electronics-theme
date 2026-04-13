@@ -77,7 +77,12 @@
             {% when 'logo' %}
               {{ logo }}
             {% when 'menu' %}
-              {{ menu }}
+              {% if linklists['main-menu'] and linklists['main-menu'].links.size > 0 %}
+                {% assign mega_menu_snippet = 'mega-menu' %}
+                {% render mega_menu_snippet %}
+              {% else %}
+                {{ menu }}
+              {% endif %}
             {% when 'localization' %}
               {{ localization }}
             {% when 'search' %}
