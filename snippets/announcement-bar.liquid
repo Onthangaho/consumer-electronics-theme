@@ -1,0 +1,33 @@
+{% comment %}
+  Announcement bar — reads from global Theme Settings.
+  Controlled by: Settings → Store Announcement.
+  Include this in layout/theme.liquid directly after the opening <body> tag.
+{% endcomment %}
+
+{% if settings.show_announcement %}
+  <div
+    class="announcement-bar"
+    style="
+      background-color: {{ settings.announcement_bg }};
+      color: {{ settings.announcement_text_color }};
+      text-align: center;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      width: 100%;
+      box-sizing: border-box;
+    "
+  >
+    {% if settings.announcement_link != blank %}
+      <a
+        href="{{ settings.announcement_link }}"
+        style="color: {{ settings.announcement_text_color }}; text-decoration: underline;"
+      >
+        {{ settings.announcement_text }}
+      </a>
+    {% else %}
+      <span>{{ settings.announcement_text }}</span>
+    {% endif %}
+  </div>
+{% endif %}
