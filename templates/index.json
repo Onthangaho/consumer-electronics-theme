@@ -436,7 +436,7 @@
                   "blocks": {}
                 },
                 "group_aFyAQ7": {
-                  "type": "group",
+                  "type": "_product-card-group",
                   "settings": {
                     "content_direction": "column",
                     "vertical_on_mobile": true,
