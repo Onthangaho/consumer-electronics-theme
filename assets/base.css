@@ -2,9 +2,14 @@
   box-sizing: border-box;
 }
 
+html {
+  background: #000;
+  color: #fff;
+}
+
 body {
-  color: var(--color-foreground);
-  background: var(--color-background);
+  color: #fff;
+  background: #000;
   display: flex;
   flex-direction: column;
   margin: 0;
