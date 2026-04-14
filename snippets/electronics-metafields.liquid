@@ -94,14 +94,25 @@
       {% endif %}
 
       {% if has_spec %}
+        {% assign spec_url = '' %}
+        {% if has_spec.url %}
+          {% assign spec_url = has_spec.url %}
+        {% elsif has_spec.first and has_spec.first.url %}
+          {% assign spec_url = has_spec.first.url %}
+        {% elsif product.metafields.custom.spec_sheet.value and product.metafields.custom.spec_sheet.value.url %}
+          {% assign spec_url = product.metafields.custom.spec_sheet.value.url %}
+        {% endif %}
+
+        {% if spec_url != blank %}
         <a
-          href="{{ has_spec.url }}"
+          href="{{ spec_url }}"
           target="_blank"
           download
           style="display:inline-flex;align-items:center;gap:8px;background:#1d4ed8;color:#fff;font-size:13px;font-weight:600;padding:10px 14px;border-radius:8px;text-decoration:none;"
         >
           Download Specification Sheet (PDF)
         </a>
+        {% endif %}
       {% endif %}
     </div>
   {% endunless %}
