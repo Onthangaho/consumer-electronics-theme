@@ -1,0 +1,273 @@
+{% comment %}
+  electronics-metafields.liquid
+  Renders structured metafield data for electronics products.
+  Include in your product template with: {% render 'electronics-metafields' %}
+
+  Metafields read:
+    custom.warranty_months   — Integer
+    custom.warranty_terms    — Rich text
+    custom.spec_sheet        — File reference
+    custom.energy_rating     — Single line text
+    custom.release_year      — Integer
+    custom.is_refurbished    — Boolean
+{% endcomment %}
+
+{% comment %}
+  STEP A — Assign every metafield to a short variable first.
+  This keeps the code readable and avoids repeating the long metafield path.
+  If a metafield has no value, the variable will be nil (empty).
+{% endcomment %}
+{% assign has_warranty    = product.metafields.custom.warranty_months.value %}
+{% assign has_terms       = product.metafields.custom.warranty_terms.value %}
+{% assign has_spec        = product.metafields.custom.spec_sheet.value %}
+{% assign has_energy      = product.metafields.custom.energy_rating.value %}
+{% assign has_year        = product.metafields.custom.release_year.value %}
+{% assign is_refurbished  = product.metafields.custom.is_refurbished.value %}
+
+{% comment %}
+  OUTER GATE — if every single metafield is empty (Product D), nothing renders.
+  This compound if checks: does the product have ANY metafield at all?
+  If none are set, the entire block is skipped. Zero HTML output.
+{% endcomment %}
+{% if has_warranty or has_terms or has_spec or has_energy or has_year or is_refurbished %}
+
+<div class="electronics-metafields" style="
+  margin: 2rem 0;
+  font-family: system-ui, sans-serif;
+">
+
+  {% comment %}
+    STEP E — Refurbished badge.
+    This goes at the TOP so customers see it immediately — it affects their purchase decision.
+    is_refurbished is a boolean so we compare with == true (not just {% if is_refurbished %})
+    because Liquid treats the string "false" as truthy. Comparing == true is safer.
+  {% endcomment %}
+  {% if is_refurbished == true %}
+    <div style="margin-bottom: 1rem;">
+      <span style="
+        display: inline-block;
+        background: #ed8936;
+        color: #ffffff;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      ">
+        Certified Refurbished
+      </span>
+    </div>
+  {% endif %}
+
+  {% comment %}
+    STEP B — Specifications table.
+    Only rows with actual data are rendered.
+    Each row is individually wrapped in {% if %} so empty metafields leave no trace.
+  {% endcomment %}
+  {% assign has_any_spec_row = false %}
+  {% if has_warranty or has_energy or has_year %}
+    {% assign has_any_spec_row = true %}
+  {% endif %}
+
+  {% if has_any_spec_row %}
+    <div style="margin-bottom: 1.5rem;">
+      <h3 style="
+        font-size: 16px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e5e7eb;
+      ">
+        Technical Specifications
+      </h3>
+
+      <table style="
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      ">
+        <tbody>
+
+          {% comment %} Warranty months — integer, so we append " months" in Liquid {% endcomment %}
+          {% if has_warranty %}
+            <tr>
+              <td style="
+                padding: 10px 16px;
+                color: #6b7280;
+                font-weight: 500;
+                width: 40%;
+                border-bottom: 1px solid #f3f4f6;
+                background: #f9fafb;
+              ">
+                Warranty Period
+              </td>
+              <td style="
+                padding: 10px 16px;
+                color: #111827;
+                font-weight: 600;
+                border-bottom: 1px solid #f3f4f6;
+              ">
+                {{ has_warranty }} months
+              </td>
+            </tr>
+          {% endif %}
+
+          {% comment %} Release year — integer, rendered as-is {% endcomment %}
+          {% if has_year %}
+            <tr>
+              <td style="
+                padding: 10px 16px;
+                color: #6b7280;
+                font-weight: 500;
+                border-bottom: 1px solid #f3f4f6;
+                background: #f9fafb;
+              ">
+                Release Year
+              </td>
+              <td style="
+                padding: 10px 16px;
+                color: #111827;
+                font-weight: 600;
+                border-bottom: 1px solid #f3f4f6;
+              ">
+                {{ has_year }}
+              </td>
+            </tr>
+          {% endif %}
+
+          {% comment %}
+            STEP F — Energy rating row with visual indicator.
+            We use {% case %} to map each rating string to a color and label.
+            case/when is cleaner than a long chain of if/elsif for this kind of lookup.
+          {% endcomment %}
+          {% if has_energy %}
+            {% assign energy_color = "#e53e3e" %}
+            {% assign energy_label = "Below Average" %}
+            {% case has_energy %}
+              {% when "A++" %}
+                {% assign energy_color = "#38a169" %}
+                {% assign energy_label = "Excellent Efficiency" %}
+              {% when "A+" %}
+                {% assign energy_color = "#68d391" %}
+                {% assign energy_label = "Very Good Efficiency" %}
+              {% when "A" %}
+                {% assign energy_color = "#ecc94b" %}
+                {% assign energy_label = "Good Efficiency" %}
+              {% when "B" %}
+                {% assign energy_color = "#ed8936" %}
+                {% assign energy_label = "Average Efficiency" %}
+            {% endcase %}
+
+            <tr>
+              <td style="
+                padding: 10px 16px;
+                color: #6b7280;
+                font-weight: 500;
+                border-bottom: 1px solid #f3f4f6;
+                background: #f9fafb;
+              ">
+                Energy Rating
+              </td>
+              <td style="
+                padding: 10px 16px;
+                border-bottom: 1px solid #f3f4f6;
+              ">
+                <span style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 10px;
+                ">
+                  <span style="
+                    background: {{ energy_color }};
+                    color: #ffffff;
+                    font-weight: 700;
+                    font-size: 13px;
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    min-width: 36px;
+                    text-align: center;
+                  ">
+                    {{ has_energy }}
+                  </span>
+                  <span style="color: {{ energy_color }}; font-size: 13px; font-weight: 500;">
+                    {{ energy_label }}
+                  </span>
+                </span>
+              </td>
+            </tr>
+          {% endif %}
+
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% comment %}
+    STEP C — Rich text warranty terms.
+    IMPORTANT: We use | metafield_tag NOT .value
+    .value on a rich text metafield outputs raw JSON like {"type":"root","children":[...]}
+    metafield_tag converts that JSON into proper HTML — bold text, lists, paragraphs.
+  {% endcomment %}
+  {% if has_terms %}
+    <div style="
+      margin-bottom: 1.5rem;
+      padding: 16px 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    ">
+      <h3 style="
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 10px;
+      ">
+        Warranty Terms &amp; Conditions
+      </h3>
+      <div style="font-size: 14px; color: #374151; line-height: 1.7;">
+        {{ product.metafields.custom.warranty_terms | metafield_tag }}
+      </div>
+    </div>
+  {% endif %}
+
+  {% comment %}
+    STEP D — Spec sheet download link.
+    has_spec is the file metafield value object.
+    .url gives the CDN URL of the uploaded file.
+    The download attribute tells the browser to download rather than open the file.
+    If has_spec is empty (Product C, D), this entire block is skipped — no broken link.
+  {% endcomment %}
+  {% if has_spec %}
+    <div style="margin-bottom: 1.5rem;">
+      <a
+        href="{{ has_spec.url }}"
+        target="_blank"
+        download
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: #1d4ed8;
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 600;
+          padding: 10px 20px;
+          border-radius: 7px;
+          text-decoration: none;
+          transition: background 0.15s ease;
+        "
+      >
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0;">
+          <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+        Download Specification Sheet (PDF)
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+
+{% endif %}
+{% comment %} End outer gate — Product D with no metafields outputs nothing above this line {% endcomment %}
