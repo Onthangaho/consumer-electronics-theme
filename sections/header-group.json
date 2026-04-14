@@ -83,39 +83,45 @@
         "collection_color_scheme": "default"
       }
     },
-    "header_announcements_LcejnH": {
-      "type": "header-announcements",
+    "featured_collections_grid_WfPEV3": {
+      "type": "featured-collections-grid",
       "blocks": {
-        "announcement_pjkxMp": {
-          "type": "_announcement",
+        "collection_card_WDXDHb": {
+          "type": "collection_card",
           "settings": {
-            "text": "Shop our latest arrivals!",
-            "link": "",
-            "font": "var(--font-body--family)",
-            "font_size": "1rem",
-            "weight": "",
-            "letter_spacing": "normal",
-            "case": "none"
-          },
-          "blocks": {}
+            "collection": "laptops",
+            "button_text": "Shop Now"
+          }
+        },
+        "collection_card_6h6irF": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "monitors",
+            "button_text": "Shop Now"
+          }
+        },
+        "collection_card_AqGHXV": {
+          "type": "collection_card",
+          "settings": {
+            "collection": "earbuds",
+            "button_text": "Shop Now"
+          }
         }
       },
       "block_order": [
-        "announcement_pjkxMp"
+        "collection_card_WDXDHb",
+        "collection_card_6h6irF",
+        "collection_card_AqGHXV"
       ],
-      "name": "t:names.announcement_bar",
+      "name": "Featured Collections Grid",
       "settings": {
-        "speed": 5,
-        "section_width": "page-width",
-        "color_scheme": "",
-        "divider_width": 0,
-        "padding-block-start": 15,
-        "padding-block-end": 15
+        "heading": "Featured Collections",
+        "subheading": "Shop top categories chosen for this season"
       }
     }
   },
   "order": [
     "header_section",
-    "header_announcements_LcejnH"
+    "featured_collections_grid_WfPEV3"
   ]
 }

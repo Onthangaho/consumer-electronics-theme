@@ -9,7 +9,10 @@
  */
 {
   "current": {
+    "quick_add": false,
+    "mobile_quick_add": false,
     "show_announcement": true,
+    "show_sale_badges": true,
     "content_for_index": []
   }
 }
