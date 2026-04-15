@@ -557,6 +557,8 @@
     /* Use -1 instead of 0 so intersection observer can track sticky state */
     top: -1px;
     z-index: var(--layer-sticky);
+    background: rgb(0 0 0 / 0.9);
+    backdrop-filter: blur(8px);
   }
 
   .header[data-sticky-state] {
@@ -658,7 +660,7 @@
     position: relative;
 
     /* Overwrite color from color scheme, background is controlled by the underlays */
-    background-color: transparent;
+    background-color: rgb(0 0 0 / 0.92);
 
     &:has(.mega-menu__list:hover),
     &:has(.menu-list__link[aria-haspopup]:is(:hover, [aria-expanded='true'])),
@@ -666,6 +668,11 @@
       /* Only elevate the row when the submenu is open to avoid overlapping other elevated content */
       z-index: var(--layer-heightened);
     }
+  }
+
+  .header__row--top,
+  .header__row--bottom {
+    backdrop-filter: blur(6px);
   }
 
   .header__row--top:not(.divider--page-width),
