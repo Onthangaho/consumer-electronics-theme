@@ -80,6 +80,58 @@
   </div>
 </div>
 
+{% stylesheet %}
+  main[data-template*='cart'] [data-testid='product-list'] {
+    margin-top: var(--margin-3xl);
+    padding: var(--padding-xl);
+    border: 1px solid rgb(var(--color-border-rgb) / 0.28);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgb(var(--color-background-rgb) / 0.82), rgb(var(--color-foreground-rgb) / 0.03));
+    box-shadow: 0 12px 34px rgb(0 0 0 / 0.2);
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .section-resource-list__header {
+    margin-bottom: var(--margin-lg);
+    padding-bottom: var(--padding-sm);
+    border-bottom: 1px solid rgb(var(--color-border-rgb) / 0.25);
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .section-resource-list__header h3 {
+    font-size: clamp(1.1rem, 1rem + 0.45vw, 1.45rem);
+    letter-spacing: 0.01em;
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .resource-list__item {
+    border: 1px solid rgb(var(--color-border-rgb) / 0.25);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgb(var(--color-background-rgb) / 0.62);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .resource-list__item:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--color-primary-rgb) / 0.45);
+    box-shadow: 0 10px 20px rgb(0 0 0 / 0.22);
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .resource-list__item .product-card__content {
+    padding: var(--padding-sm) var(--padding-md) var(--padding-md);
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .resource-list__item .product-card__title,
+  main[data-template*='cart'] [data-testid='product-list'] .resource-list__item h3 {
+    color: rgb(var(--color-foreground-heading-rgb));
+    font-weight: 600;
+  }
+
+  main[data-template*='cart'] [data-testid='product-list'] .section-resource-list__header a {
+    color: rgb(var(--color-primary-rgb));
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+  }
+{% endstylesheet %}
+
 {% schema %}
 {
   "name": "t:names.product_list",
