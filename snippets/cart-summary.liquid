@@ -473,6 +473,25 @@
     padding-inline: var(--padding-4xl);
   }
 
+  .cart-page .cart-totals {
+    gap: var(--gap-lg);
+  }
+
+  .cart-page .cart-actions {
+    border-block-color: rgb(var(--color-border-rgb) / 0.32);
+  }
+
+  .cart-page .cart__ctas .cart__checkout-button {
+    border: none;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    box-shadow: 0 10px 24px rgb(29 78 216 / 0.35);
+  }
+
+  .cart-page .cart__ctas .cart__checkout-button:hover {
+    filter: brightness(1.06);
+  }
+
   .cart-drawer__summary .cart-totals:not(:has(.cart-totals__original-container:empty)) {
     border-block-start: var(--style-border-width) solid var(--color-border);
     padding-block-start: var(--padding-2xl);
