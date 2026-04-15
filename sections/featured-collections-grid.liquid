@@ -1,59 +1,61 @@
-<section class="featured-collections-grid section section--page-width">
-  <div class="featured-collections-grid__inner">
-    {% if section.settings.heading != blank %}
-      <h2 class="featured-collections-grid__heading">{{ section.settings.heading }}</h2>
-    {% endif %}
+{% if request.page_type == 'index' %}
+  <section class="featured-collections-grid section section--page-width">
+    <div class="featured-collections-grid__inner">
+      {% if section.settings.heading != blank %}
+        <h2 class="featured-collections-grid__heading">{{ section.settings.heading }}</h2>
+      {% endif %}
 
-    {% if section.settings.subheading != blank %}
-      <p class="featured-collections-grid__subheading">{{ section.settings.subheading }}</p>
-    {% endif %}
+      {% if section.settings.subheading != blank %}
+        <p class="featured-collections-grid__subheading">{{ section.settings.subheading }}</p>
+      {% endif %}
 
-    <div class="featured-collections-grid__cards">
-      {% for block in section.blocks %}
-        {% assign collection_resource = block.settings.collection %}
-        {% assign fallback_product = blank %}
-        {% assign collection_image = blank %}
+      <div class="featured-collections-grid__cards">
+        {% for block in section.blocks %}
+          {% assign collection_resource = block.settings.collection %}
+          {% assign fallback_product = blank %}
+          {% assign collection_image = blank %}
 
-        {% if collection_resource %}
-          {% assign collection_image = collection_resource.image %}
-          {% if collection_image == blank %}
-            {% assign fallback_product = collection_resource.products.first %}
-            {% if fallback_product and fallback_product.featured_image %}
-              {% assign collection_image = fallback_product.featured_image %}
+          {% if collection_resource %}
+            {% assign collection_image = collection_resource.image %}
+            {% if collection_image == blank %}
+              {% assign fallback_product = collection_resource.products.first %}
+              {% if fallback_product and fallback_product.featured_image %}
+                {% assign collection_image = fallback_product.featured_image %}
+              {% endif %}
             {% endif %}
           {% endif %}
-        {% endif %}
 
-        <article class="featured-collections-grid__card" {{ block.shopify_attributes }}>
-          {% if collection_resource %}
-            <a class="featured-collections-grid__image-link" href="{{ collection_resource.url }}">
-              {% if collection_image %}
-                {{ collection_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: collection_resource.title, class: 'featured-collections-grid__image' }}
-              {% else %}
-                <div class="featured-collections-grid__image featured-collections-grid__image--placeholder"></div>
-              {% endif %}
-            </a>
-
-            <div class="featured-collections-grid__content">
-              <h3 class="featured-collections-grid__title">{{ collection_resource.title }}</h3>
-              <p class="featured-collections-grid__count">{{ collection_resource.products_count }} products</p>
-              <a class="featured-collections-grid__button" href="{{ collection_resource.url }}">
-                {{ block.settings.button_text | default: 'Shop Now' }}
+          <article class="featured-collections-grid__card" {{ block.shopify_attributes }}>
+            {% if collection_resource %}
+              <a class="featured-collections-grid__image-link" href="{{ collection_resource.url }}">
+                {% if collection_image %}
+                  {{ collection_image | image_url: width: 600 | image_tag: loading: 'lazy', alt: collection_resource.title, class: 'featured-collections-grid__image' }}
+                {% else %}
+                  <div class="featured-collections-grid__image featured-collections-grid__image--placeholder"></div>
+                {% endif %}
               </a>
-            </div>
-          {% else %}
-            <div class="featured-collections-grid__image featured-collections-grid__image--placeholder"></div>
-            <div class="featured-collections-grid__content">
-              <h3 class="featured-collections-grid__title">Select a collection</h3>
-              <p class="featured-collections-grid__count">0 products</p>
-              <span class="featured-collections-grid__button">{{ block.settings.button_text | default: 'Shop Now' }}</span>
-            </div>
-          {% endif %}
-        </article>
-      {% endfor %}
+
+              <div class="featured-collections-grid__content">
+                <h3 class="featured-collections-grid__title">{{ collection_resource.title }}</h3>
+                <p class="featured-collections-grid__count">{{ collection_resource.products_count }} products</p>
+                <a class="featured-collections-grid__button" href="{{ collection_resource.url }}">
+                  {{ block.settings.button_text | default: 'Shop Now' }}
+                </a>
+              </div>
+            {% else %}
+              <div class="featured-collections-grid__image featured-collections-grid__image--placeholder"></div>
+              <div class="featured-collections-grid__content">
+                <h3 class="featured-collections-grid__title">Select a collection</h3>
+                <p class="featured-collections-grid__count">0 products</p>
+                <span class="featured-collections-grid__button">{{ block.settings.button_text | default: 'Shop Now' }}</span>
+              </div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+{% endif %}
 
 {% stylesheet %}
   .featured-collections-grid__inner {
