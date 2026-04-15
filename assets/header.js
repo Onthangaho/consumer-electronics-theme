@@ -3,7 +3,6 @@ import { onDocumentLoaded, changeMetaThemeColor, setHeaderMenuStyle } from '@the
 
 /**
  * @typedef {Object} HeaderComponentRefs
- * @property {HTMLDivElement} headerDrawerContainer - The header drawer container element
  * @property {HTMLElement} headerMenu - The header menu element
  * @property {HTMLElement} headerRowTop - The header top row element
  */
@@ -19,7 +18,7 @@ import { onDocumentLoaded, changeMetaThemeColor, setHeaderMenuStyle } from '@the
  */
 
 class HeaderComponent extends Component {
-  requiredRefs = ['headerDrawerContainer', 'headerMenu', 'headerRowTop'];
+  requiredRefs = ['headerMenu', 'headerRowTop'];
 
   /**
    * Width of window when header drawer was hidden
