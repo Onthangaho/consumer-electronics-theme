@@ -146,6 +146,10 @@ function updateVariantUI() {
         {{ product.title }}
       </h1>
 
+      <div style="margin:0 0 10px;">
+        {%- render 'electronics-metafields', badge_only: true -%}
+      </div>
+
       <p style="font-size:13px;color:#6b7280;margin:0 0 12px;">
         {{ product.type }}
       </p>
@@ -245,6 +249,7 @@ function updateVariantUI() {
       {{ product.description }}
     </div>
   </div>
+  
 
   {% comment %}
     Specifications table — reads spec: tags formatted as spec:Name:Value.
@@ -311,6 +316,8 @@ function updateVariantUI() {
       {% endif %}
     </div>
   {% endif %}
+
+  {%- render 'electronics-metafields', content_only: true -%}
 
   {% comment %} All variants table — SKU, price and stock status per variant {% endcomment %}
   <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid #e5e7eb;">
