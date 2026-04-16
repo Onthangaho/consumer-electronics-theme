@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "smartwatch-features",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
