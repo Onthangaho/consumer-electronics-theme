@@ -145,15 +145,19 @@
   margin: 0 0 1rem;
   padding: 0.8rem 0.9rem;
   border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #f8fafc;
+  border: 1px solid #1f2937;
+  background: #0f172a;
 }
 
 .swf-description-preview p {
   margin: 0 0 0.45rem;
   font-size: 0.92rem;
   line-height: 1.6;
-  color: #374151;
+  color: #ffffff;
+}
+
+.swf-description-preview a {
+  color: #ffffff;
 }
 
 .swf-form {
@@ -175,6 +179,13 @@
   border-radius: 8px;
   padding: 0.65rem 0.75rem;
   font-size: 0.95rem;
+  color: #111827 !important;
+  background: #ffffff !important;
+}
+
+.swf-form select option {
+  color: #111827 !important;
+  background: #ffffff !important;
 }
 
 .swf-form button {
@@ -208,16 +219,18 @@
   margin-top: 1.5rem;
   padding-top: 1.3rem;
   border-top: 1px solid #e5e7eb;
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
 }
 
 .swf-full-description h2 {
   margin: 0 0 0.8rem;
   font-size: 1.15rem;
-  color: #111827;
+  color: #ffffff;
 }
 
 .swf-full-description .rte {
-  color: #334155;
+  color: #ffffff;
   line-height: 1.7;
 }
 
@@ -269,11 +282,18 @@
       <div class="smartwatch-main-image">
         <img
           id="swf-main-image-{{ section.id }}"
-          src="{{ selected_variant.featured_image | default: product.featured_image | image_url: width: 900 }}"
+          src="{{ selected_variant.featured_image | default: product.featured_image | image_url: width: 720 }}"
+          srcset="
+            {{ selected_variant.featured_image | default: product.featured_image | image_url: width: 360 }} 360w,
+            {{ selected_variant.featured_image | default: product.featured_image | image_url: width: 540 }} 540w,
+            {{ selected_variant.featured_image | default: product.featured_image | image_url: width: 720 }} 720w
+          "
+          sizes="(min-width: 990px) 42vw, 92vw"
           alt="{{ selected_variant.featured_image.alt | default: product.title }}"
-          width="900"
-          height="900"
-          loading="lazy"
+          width="720"
+          height="720"
+          loading="eager"
+          fetchpriority="high"
           decoding="async"
         >
       </div>
@@ -283,17 +303,23 @@
           <button
             class="smartwatch-thumb {% if forloop.first %}is-active{% endif %}"
             type="button"
-            data-full="{{ image | image_url: width: 900 }}"
+            data-full="{{ image | image_url: width: 720 }}"
             data-image-id="{{ image.id }}"
             data-alt="{{ image.alt | default: product.title | escape }}"
             data-variant="{% if image.attached_to_variant %}{{ image.attached_to_variant.id }}{% else %}all{% endif %}"
             aria-label="Show image {{ forloop.index }}"
           >
             <img
-              src="{{ image | image_url: width: 160 }}"
+              src="{{ image | image_url: width: 96 }}"
+              srcset="
+                {{ image | image_url: width: 72 }} 72w,
+                {{ image | image_url: width: 96 }} 96w,
+                {{ image | image_url: width: 144 }} 144w
+              "
+              sizes="72px"
               alt="{{ image.alt | default: product.title | escape }}"
-              width="160"
-              height="160"
+              width="96"
+              height="96"
               loading="lazy"
               decoding="async"
             >
@@ -408,6 +434,7 @@
     var variants = parseVariants(sectionId);
     var moneyFormat = root.getAttribute('data-money-format') || '$0.00';
     var moneyZero = root.getAttribute('data-money-zero') || '$0.00';
+    var activeThumb = root.querySelector('.smartwatch-thumb.is-active') || null;
 
     function setActiveThumb(targetThumb) {
       thumbs.forEach(function (thumb) {
@@ -416,6 +443,7 @@
 
       if (!targetThumb) return;
       targetThumb.classList.add('is-active');
+      activeThumb = targetThumb;
 
       if (!mainImage) return;
       mainImage.src = targetThumb.getAttribute('data-full') || mainImage.src;
@@ -426,7 +454,7 @@
       return thumbs.filter(function (thumb) {
         var thumbVariant = thumb.getAttribute('data-variant');
         var visible = thumbVariant === 'all' || thumbVariant === variantId;
-        thumb.style.display = visible ? 'inline-block' : 'none';
+        thumb.hidden = !visible;
         return visible;
       });
     }
@@ -460,8 +488,7 @@
         });
       }
 
-      var currentActive = root.querySelector('.smartwatch-thumb.is-active');
-      if (!currentActive || currentActive.style.display === 'none') {
+      if (!activeThumb || activeThumb.hidden) {
         setActiveThumb(preferred || visibleThumbs[0]);
       } else if (preferred) {
         setActiveThumb(preferred);
