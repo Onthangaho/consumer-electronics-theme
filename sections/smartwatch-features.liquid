@@ -1,0 +1,502 @@
+{% assign selected_variant = product.selected_or_first_available_variant %}
+{% assign water_resistance_rating = product.metafields.custom.water_resistance_rating.value | default: product.metafields.custom.water_resistance_rating %}
+{% assign has_new_arrival = false %}
+{% for tag in product.tags %}
+  {% assign normalized_tag = tag | downcase %}
+  {% if normalized_tag == 'new-arrival' or normalized_tag == 'new arrival' %}
+    {% assign has_new_arrival = true %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+{% assign technical_manual_url = blank %}
+{% if product.metafields.custom.technical_manual.value != blank %}
+  {% assign technical_manual_url = product.metafields.custom.technical_manual.value.url | default: product.metafields.custom.technical_manual.value %}
+{% elsif product.metafields.custom.technical_manual != blank %}
+  {% assign technical_manual_url = product.metafields.custom.technical_manual | file_url %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Smartwatch Features",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Smartwatch Features"
+    }
+  ]
+}
+{% endschema %}
+
+<style>
+.swf-section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.swf-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 1rem;
+}
+
+.swf-badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.swf-badge-new {
+  background: #065f46;
+  color: #ecfdf5;
+}
+
+.swf-badge-sale {
+  background: #7f1d1d;
+  color: #fef2f2;
+}
+
+.swf-badge-soldout {
+  background: #374151;
+  color: #f3f4f6;
+}
+
+.smartwatch-product {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.smartwatch-gallery {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.smartwatch-main-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.smartwatch-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.smartwatch-thumbnails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.smartwatch-thumb {
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  line-height: 0;
+  background: #fff;
+  cursor: pointer;
+}
+
+.smartwatch-thumb.is-active {
+  border-color: #111827;
+}
+
+.smartwatch-thumbnails img {
+  width: 72px;
+  height: 72px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+.smartwatch-details {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1.1rem;
+  background: #fff;
+}
+
+.product-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.8rem;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.product-price {
+  margin: 0 0 0.85rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.swf-description-preview {
+  margin: 0 0 1rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+}
+
+.swf-description-preview p {
+  margin: 0 0 0.45rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.swf-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.swf-form label {
+  display: block;
+  margin: 0 0 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.swf-form select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.swf-form button {
+  border: 0;
+  border-radius: 9px;
+  padding: 0.85rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: #111827;
+  color: #fff;
+  cursor: pointer;
+}
+
+.swf-form button:disabled {
+  cursor: not-allowed;
+  background: #9ca3af;
+}
+
+.swf-metafields {
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.swf-metafields p {
+  margin: 0 0 0.55rem;
+  color: #334155;
+}
+
+.swf-full-description {
+  margin-top: 1.5rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.swf-full-description h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.15rem;
+  color: #111827;
+}
+
+.swf-full-description .rte {
+  color: #334155;
+  line-height: 1.7;
+}
+
+@media (max-width: 768px) {
+  .swf-section {
+    padding: 1.25rem 0.85rem;
+  }
+
+  .smartwatch-product {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .product-title {
+    font-size: 1.45rem;
+  }
+
+  .product-price {
+    font-size: 1.25rem;
+  }
+}
+</style>
+
+<div
+  class="swf-section"
+  id="smartwatch-features-{{ section.id }}"
+  data-swf-section-id="{{ section.id }}"
+  data-money-format="{{ shop.money_format | escape }}"
+  data-money-zero="{{ 0 | money | escape }}"
+>
+  <div class="swf-badges">
+    {% if product.compare_at_price > product.price %}
+      {% assign savings = product.compare_at_price | minus: product.price %}
+      {% assign discount_pct = savings | times: 100 | divided_by: product.compare_at_price | round %}
+      <span class="swf-badge swf-badge-sale">SALE {{ discount_pct }}% OFF</span>
+    {% endif %}
+
+    {% if has_new_arrival %}
+      <span class="swf-badge swf-badge-new">New Arrival</span>
+    {% endif %}
+
+    {% unless product.available %}
+      <span class="swf-badge swf-badge-soldout">Sold Out</span>
+    {% endunless %}
+  </div>
+
+  <div class="smartwatch-product">
+    <div class="smartwatch-gallery">
+      <div class="smartwatch-main-image">
+        <img
+          id="swf-main-image-{{ section.id }}"
+          src="{{ selected_variant.featured_image | default: product.featured_image | image_url: width: 900 }}"
+          alt="{{ selected_variant.featured_image.alt | default: product.title }}"
+          width="900"
+          height="900"
+          loading="lazy"
+          decoding="async"
+        >
+      </div>
+
+      <div class="smartwatch-thumbnails" id="thumbnails-{{ section.id }}">
+        {% for image in product.images %}
+          <button
+            class="smartwatch-thumb {% if forloop.first %}is-active{% endif %}"
+            type="button"
+            data-full="{{ image | image_url: width: 900 }}"
+            data-image-id="{{ image.id }}"
+            data-alt="{{ image.alt | default: product.title | escape }}"
+            data-variant="{% if image.attached_to_variant %}{{ image.attached_to_variant.id }}{% else %}all{% endif %}"
+            aria-label="Show image {{ forloop.index }}"
+          >
+            <img
+              src="{{ image | image_url: width: 160 }}"
+              alt="{{ image.alt | default: product.title | escape }}"
+              width="160"
+              height="160"
+              loading="lazy"
+              decoding="async"
+            >
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="smartwatch-details">
+      <h1 class="product-title">{{ product.title }}</h1>
+      <p class="product-price" id="swf-price-{{ section.id }}">{{ selected_variant.price | money }}</p>
+
+      <div class="swf-description-preview">
+        <p>{{ product.description | strip_html | truncate: 120 }}</p>
+        <a href="#swf-full-description-{{ section.id }}">Read full description ↓</a>
+      </div>
+
+      <form method="post" action="{{ routes.cart_add_url }}" id="variant-form-{{ section.id }}" class="swf-form">
+        <div>
+          <label for="variant-select-{{ section.id }}">Choose Variant</label>
+          <select name="id" id="variant-select-{{ section.id }}" aria-label="Choose product variant">
+            {% for variant in product.variants %}
+              <option value="{{ variant.id }}" {% if variant.id == selected_variant.id %}selected{% endif %}>
+                {{ variant.title }} - {{ variant.price | money }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" id="swf-add-btn-{{ section.id }}" aria-label="Add selected variant to cart" {% unless selected_variant.available %}disabled{% endunless %}>
+          {% if selected_variant.available %}
+            Add to Cart - {{ selected_variant.price | money }}
+          {% else %}
+            Sold Out
+          {% endif %}
+        </button>
+      </form>
+
+      {% if water_resistance_rating != blank or technical_manual_url != blank %}
+        <div class="swf-metafields">
+          {% if water_resistance_rating != blank %}
+            <p><strong>Water Resistance Rating:</strong> {{ water_resistance_rating }}</p>
+          {% endif %}
+
+          {% if technical_manual_url != blank %}
+            <p>
+              <strong>Technical Manual:</strong>
+              <a href="{{ technical_manual_url }}" target="_blank" rel="noopener noreferrer">
+                Download PDF
+              </a>
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="swf-full-description-{{ section.id }}" class="swf-full-description">
+    <h2>Product Description</h2>
+    <div class="rte">{{ product.description }}</div>
+  </div>
+</div>
+
+<script type="application/json" id="swf-variants-{{ section.id }}">
+[
+  {% for variant in product.variants %}
+    {
+      "id": "{{ variant.id }}",
+      "title": {{ variant.title | json }},
+      "price": {{ variant.price }},
+      "available": {{ variant.available | json }},
+      "featuredImageId": {% if variant.featured_image %}"{{ variant.featured_image.id }}"{% else %}null{% endif %}
+    }{% unless forloop.last %},{% endunless %}
+  {% endfor %}
+]
+</script>
+<script type="module">
+  function parseVariants(sectionId) {
+    var jsonEl = document.getElementById('swf-variants-' + sectionId);
+    if (!jsonEl) return [];
+
+    try {
+      return JSON.parse(jsonEl.textContent || '[]');
+    } catch (error) {
+      console.warn('Failed to parse smartwatch variants JSON', error);
+      return [];
+    }
+  }
+
+  function formatMoney(cents, moneyFormat, moneyZero) {
+    if (window.Shopify && typeof window.Shopify.formatMoney === 'function') {
+      return window.Shopify.formatMoney(cents, moneyFormat);
+    }
+
+    var symbol = (moneyZero || '$0.00').replace(/[\d.,\s]/g, '');
+    var amount = (Number(cents) / 100).toFixed(2);
+    var parts = amount.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return symbol + parts.join('.');
+  }
+
+  function initSmartwatchSection(root) {
+    if (!root || root.dataset.swfReady === 'true') return;
+
+    var sectionId = root.getAttribute('data-swf-section-id');
+    if (!sectionId) return;
+
+    var variantSelect = root.querySelector('#variant-select-' + sectionId);
+    var priceEl = root.querySelector('#swf-price-' + sectionId);
+    var addBtn = root.querySelector('#swf-add-btn-' + sectionId);
+    var mainImage = root.querySelector('#swf-main-image-' + sectionId);
+    var thumbs = Array.prototype.slice.call(root.querySelectorAll('.smartwatch-thumb'));
+    var variants = parseVariants(sectionId);
+    var moneyFormat = root.getAttribute('data-money-format') || '$0.00';
+    var moneyZero = root.getAttribute('data-money-zero') || '$0.00';
+
+    function setActiveThumb(targetThumb) {
+      thumbs.forEach(function (thumb) {
+        thumb.classList.remove('is-active');
+      });
+
+      if (!targetThumb) return;
+      targetThumb.classList.add('is-active');
+
+      if (!mainImage) return;
+      mainImage.src = targetThumb.getAttribute('data-full') || mainImage.src;
+      mainImage.alt = targetThumb.getAttribute('data-alt') || mainImage.alt;
+    }
+
+    function visibleThumbsForVariant(variantId) {
+      return thumbs.filter(function (thumb) {
+        var thumbVariant = thumb.getAttribute('data-variant');
+        var visible = thumbVariant === 'all' || thumbVariant === variantId;
+        thumb.style.display = visible ? 'inline-block' : 'none';
+        return visible;
+      });
+    }
+
+    function updateVariantUI(variantId) {
+      var selected = variants.find(function (variant) {
+        return variant.id === variantId;
+      });
+      if (!selected) return;
+
+      if (priceEl) {
+        priceEl.textContent = formatMoney(selected.price, moneyFormat, moneyZero);
+      }
+
+      if (addBtn) {
+        var label = selected.available
+          ? 'Add to Cart - ' + formatMoney(selected.price, moneyFormat, moneyZero)
+          : 'Sold Out';
+        addBtn.disabled = !selected.available;
+        addBtn.textContent = label;
+        addBtn.setAttribute('aria-label', label);
+      }
+
+      var visibleThumbs = visibleThumbsForVariant(variantId);
+      if (!visibleThumbs.length) return;
+
+      var preferred = null;
+      if (selected.featuredImageId) {
+        preferred = visibleThumbs.find(function (thumb) {
+          return thumb.getAttribute('data-image-id') === String(selected.featuredImageId);
+        });
+      }
+
+      var currentActive = root.querySelector('.smartwatch-thumb.is-active');
+      if (!currentActive || currentActive.style.display === 'none') {
+        setActiveThumb(preferred || visibleThumbs[0]);
+      } else if (preferred) {
+        setActiveThumb(preferred);
+      }
+    }
+
+    thumbs.forEach(function (thumb) {
+      thumb.addEventListener('click', function () {
+        setActiveThumb(thumb);
+      });
+    });
+
+    if (variantSelect) {
+      variantSelect.addEventListener('change', function (event) {
+        updateVariantUI(event.target.value);
+      });
+      updateVariantUI(variantSelect.value);
+    }
+
+    root.dataset.swfReady = 'true';
+  }
+
+  function initAllSmartwatchSections(scope) {
+    var roots = (scope || document).querySelectorAll('[data-swf-section-id]');
+    roots.forEach(function (root) {
+      initSmartwatchSection(root);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    initAllSmartwatchSections(document);
+  });
+
+  document.addEventListener('shopify:section:load', function (event) {
+    if (!event || !event.target) return;
+    initAllSmartwatchSections(event.target);
+  });
+</script>
